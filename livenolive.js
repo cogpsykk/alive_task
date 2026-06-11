@@ -17,6 +17,7 @@ let expInfo = {
     'participant': `${util.pad(Number.parseFloat(util.randint(0, 999999)).toFixed(0), 6)}`,
     'Пол': ["\u0412\u044b\u0431\u0440\u0430\u0442\u044c", "\u0416", "\u041c"],
     'Полный возраст': '',
+    'Код по инструкции': 'нет',
 };
 let PILOTING = util.getUrlParameters().has('__pilotToken');
 
@@ -61,13 +62,9 @@ flowScheduler.add(AT_trialsLoopEnd);
 
 
 
-const AT_res_loopLoopScheduler = new Scheduler(psychoJS);
-flowScheduler.add(AT_res_loopLoopBegin(AT_res_loopLoopScheduler));
-flowScheduler.add(AT_res_loopLoopScheduler);
-flowScheduler.add(AT_res_loopLoopEnd);
-
-
-
+flowScheduler.add(osfRoutineBegin());
+flowScheduler.add(osfRoutineEachFrame());
+flowScheduler.add(osfRoutineEnd());
 flowScheduler.add(quitPsychoJS, 'Thank you for your patience.', true);
 
 // quit if user presses Cancel in dialog box:
@@ -244,11 +241,8 @@ var AT_trial_image;
 var AT_trials_key_resp;
 var AT_trial_living_text;
 var AT_trial_nonliving_text;
-var AT_residue_trialsClock;
-var AT_res_image;
-var AT_res_key_resp;
-var AT_trial_living_text_2;
-var AT_trial_nonliving_text_2;
+var osfClock;
+var text;
 var globalClock;
 var routineTimer;
 async function experimentInit() {
@@ -358,45 +352,18 @@ async function experimentInit() {
     depth: -4.0 
   });
   
-  // Initialize components for Routine "AT_residue_trials"
-  AT_residue_trialsClock = new util.Clock();
-  AT_res_image = new visual.ImageStim({
-    win : psychoJS.window,
-    name : 'AT_res_image', units : undefined, 
-    image : 'default.png', mask : undefined,
-    anchor : 'center',
-    ori : 0, 
-    pos : [0, 0], 
-    draggable: false,
-    size : [0.5, 0.5],
-    color : new util.Color([1, 1, 1]), opacity : 1,
-    flipHoriz : false, flipVert : false,
-    texRes : 128, interpolate : true, depth : -1.0 
-  });
-  AT_res_key_resp = new core.Keyboard({psychoJS: psychoJS, clock: new util.Clock(), waitForStart: true});
-  
-  AT_trial_living_text_2 = new visual.TextStim({
+  // Initialize components for Routine "osf"
+  osfClock = new util.Clock();
+  text = new visual.TextStim({
     win: psychoJS.window,
-    name: 'AT_trial_living_text_2',
-    text: 'Живое',
+    name: 'text',
+    text: 'Идет запись данных эксперимента..',
     font: 'Arial',
     units: undefined, 
-    pos: [0.3, (- 0.3)], draggable: false, height: 0.04,  wrapWidth: undefined, ori: 0,
+    pos: [0, 0], draggable: false, height: 0.05,  wrapWidth: undefined, ori: 0.0,
     languageStyle: 'LTR',
-    color: new util.Color([(- 1.0), (- 1.0), (- 1.0)]),  opacity: 1,
-    depth: -3.0 
-  });
-  
-  AT_trial_nonliving_text_2 = new visual.TextStim({
-    win: psychoJS.window,
-    name: 'AT_trial_nonliving_text_2',
-    text: 'Неживое',
-    font: 'Arial',
-    units: undefined, 
-    pos: [(- 0.3), (- 0.3)], draggable: false, height: 0.04,  wrapWidth: undefined, ori: 0,
-    languageStyle: 'LTR',
-    color: new util.Color([(- 1.0), (- 1.0), (- 1.0)]),  opacity: 1,
-    depth: -4.0 
+    color: new util.Color('white'),  opacity: undefined,
+    depth: 0.0 
   });
   
   // Create some handy timers
@@ -515,72 +482,6 @@ async function AT_trialsLoopEnd() {
 
 
 function AT_trialsLoopEndIteration(scheduler, snapshot) {
-  // ------Prepare for next entry------
-  return async function () {
-    if (typeof snapshot !== 'undefined') {
-      // ------Check if user ended loop early------
-      if (snapshot.finished) {
-        // Check for and save orphaned data
-        if (psychoJS.experiment.isEntryEmpty()) {
-          psychoJS.experiment.nextEntry(snapshot);
-        }
-        scheduler.stop();
-      } else {
-        psychoJS.experiment.nextEntry(snapshot);
-      }
-    return Scheduler.Event.NEXT;
-    }
-  };
-}
-
-
-var AT_res_loop;
-function AT_res_loopLoopBegin(AT_res_loopLoopScheduler, snapshot) {
-  return async function() {
-    TrialHandler.fromSnapshot(snapshot); // update internal variables (.thisN etc) of the loop
-    
-    // set up handler to look after randomisation of conditions etc
-    AT_res_loop = new TrialHandler({
-      psychoJS: psychoJS,
-      nReps: 11, method: TrialHandler.Method.RANDOM,
-      extraInfo: expInfo, originPath: undefined,
-      trialList: undefined,
-      seed: undefined, name: 'AT_res_loop'
-    });
-    psychoJS.experiment.addLoop(AT_res_loop); // add the loop to the experiment
-    currentLoop = AT_res_loop;  // we're now the current loop
-    
-    // Schedule all the trials in the trialList:
-    for (const thisAT_res_loop of AT_res_loop) {
-      snapshot = AT_res_loop.getSnapshot();
-      AT_res_loopLoopScheduler.add(importConditions(snapshot));
-      AT_res_loopLoopScheduler.add(AT_fixationRoutineBegin(snapshot));
-      AT_res_loopLoopScheduler.add(AT_fixationRoutineEachFrame());
-      AT_res_loopLoopScheduler.add(AT_fixationRoutineEnd(snapshot));
-      AT_res_loopLoopScheduler.add(AT_residue_trialsRoutineBegin(snapshot));
-      AT_res_loopLoopScheduler.add(AT_residue_trialsRoutineEachFrame());
-      AT_res_loopLoopScheduler.add(AT_residue_trialsRoutineEnd(snapshot));
-      AT_res_loopLoopScheduler.add(AT_res_loopLoopEndIteration(AT_res_loopLoopScheduler, snapshot));
-    }
-    
-    return Scheduler.Event.NEXT;
-  }
-}
-
-
-async function AT_res_loopLoopEnd() {
-  // terminate loop
-  psychoJS.experiment.removeLoop(AT_res_loop);
-  // update the current loop from the ExperimentHandler
-  if (psychoJS.experiment._unfinishedLoops.length>0)
-    currentLoop = psychoJS.experiment._unfinishedLoops.at(-1);
-  else
-    currentLoop = psychoJS.experiment;  // so we use addData from the experiment
-  return Scheduler.Event.NEXT;
-}
-
-
-function AT_res_loopLoopEndIteration(scheduler, snapshot) {
   // ------Prepare for next entry------
   return async function () {
     if (typeof snapshot !== 'undefined') {
@@ -1068,47 +969,84 @@ function AT_trialRoutineEnd(snapshot) {
 }
 
 
-var AT_residue_trialsMaxDurationReached;
-var _AT_res_key_resp_allKeys;
-var AT_residue_trialsMaxDuration;
-var AT_residue_trialsComponents;
-function AT_residue_trialsRoutineBegin(snapshot) {
+var osfMaxDurationReached;
+var osfMaxDuration;
+var osfComponents;
+function osfRoutineBegin(snapshot) {
   return async function () {
     TrialHandler.fromSnapshot(snapshot); // ensure that .thisN vals are up to date
     
-    //--- Prepare to start Routine 'AT_residue_trials' ---
+    //--- Prepare to start Routine 'osf' ---
     t = 0;
     frameN = -1;
     continueRoutine = true; // until we're told otherwise
     // keep track of whether this Routine was forcibly ended
     routineForceEnded = false;
-    AT_residue_trialsClock.reset();
-    routineTimer.reset();
-    AT_residue_trialsMaxDurationReached = false;
+    osfClock.reset(routineTimer.getTime());
+    routineTimer.add(1.000000);
+    osfMaxDurationReached = false;
     // update component parameters for each repeat
-    // Run 'Begin Routine' code from AT_res_code
-    Am_pic_display = Am_res_l[Math.floor(Math.random()*Am_res_l.length)];
-    Am_res_l.remove(Am_pic_display);
+    // Отключаем стандартное сохранение
+    psychoJS._saveResults = 0;
     
+    // Формируем имя файла
+    let filename = psychoJS._experiment._experimentName + '_' + psychoJS._experiment._datetime + '.csv';
     
+    // Получаем все данные 
+    let dataObj = psychoJS._experiment._trialsData;
     
+    // Составляем полный список компонентов
+    let allKeys = [];
+    dataObj.forEach(trial => {
+        Object.keys(trial).forEach(key => {
+            if (!allKeys.includes(key)) {
+                allKeys.push(key);
+            }
+        });
+    });
     
-    psychoJS.experiment.addData('AT_image_displayed', Am_pic_display);
-    psychoJS.experiment.addData('AT_image_group_name', Am_pic_display.split("/")[1].slice(0, -4));
-    AT_res_image.setImage(Am_pic_display);
-    AT_res_key_resp.keys = undefined;
-    AT_res_key_resp.rt = undefined;
-    _AT_res_key_resp_allKeys = [];
-    psychoJS.experiment.addData('AT_residue_trials.started', globalClock.getTime());
-    AT_residue_trialsMaxDuration = null
+    // Формируем CSV с заголовками
+    let csv = allKeys.join(',') + '\n';
+    
+    dataObj.forEach(trial => {
+        let row = allKeys.map(key => {
+            let val = trial[key];
+            // если значение undefined, ставим пустую строку
+            return val !== undefined ? val : '';
+        }).join(',');
+        csv += row + '\n';
+    });
+    
+    // Отправляем на OSF через DataPipe
+    console.log('Saving data...');
+    fetch('https://pipe.jspsych.org/api/data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: '*/*',
+        },
+        body: JSON.stringify({
+            experimentID: 'B9Dn1kl2ZRSw', // меняем на свой ID
+            filename: filename,
+            data: csv,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Data saved:', data);
+        quitPsychoJS();
+    })
+    .catch(err => {
+        console.error('Error saving data:', err);
+        quitPsychoJS();
+    });
+    psychoJS.experiment.addData('osf.started', globalClock.getTime());
+    osfMaxDuration = null
     // keep track of which components have finished
-    AT_residue_trialsComponents = [];
-    AT_residue_trialsComponents.push(AT_res_image);
-    AT_residue_trialsComponents.push(AT_res_key_resp);
-    AT_residue_trialsComponents.push(AT_trial_living_text_2);
-    AT_residue_trialsComponents.push(AT_trial_nonliving_text_2);
+    osfComponents = [];
+    osfComponents.push(text);
     
-    for (const thisComponent of AT_residue_trialsComponents)
+    for (const thisComponent of osfComponents)
       if ('status' in thisComponent)
         thisComponent.status = PsychoJS.Status.NOT_STARTED;
     return Scheduler.Event.NEXT;
@@ -1116,85 +1054,36 @@ function AT_residue_trialsRoutineBegin(snapshot) {
 }
 
 
-function AT_residue_trialsRoutineEachFrame() {
+function osfRoutineEachFrame() {
   return async function () {
-    //--- Loop for each frame of Routine 'AT_residue_trials' ---
+    //--- Loop for each frame of Routine 'osf' ---
     // get current time
-    t = AT_residue_trialsClock.getTime();
+    t = osfClock.getTime();
     frameN = frameN + 1;// number of completed frames (so 0 is the first frame)
     // update/draw components on each frame
     
-    // *AT_res_image* updates
-    if (t >= 0.0 && AT_res_image.status === PsychoJS.Status.NOT_STARTED) {
+    // *text* updates
+    if (t >= 0.0 && text.status === PsychoJS.Status.NOT_STARTED) {
       // keep track of start time/frame for later
-      AT_res_image.tStart = t;  // (not accounting for frame time here)
-      AT_res_image.frameNStart = frameN;  // exact frame index
+      text.tStart = t;  // (not accounting for frame time here)
+      text.frameNStart = frameN;  // exact frame index
       
-      AT_res_image.setAutoDraw(true);
+      text.setAutoDraw(true);
     }
     
     
-    // if AT_res_image is active this frame...
-    if (AT_res_image.status === PsychoJS.Status.STARTED) {
+    // if text is active this frame...
+    if (text.status === PsychoJS.Status.STARTED) {
     }
     
-    
-    // *AT_res_key_resp* updates
-    if (t >= 0.0 && AT_res_key_resp.status === PsychoJS.Status.NOT_STARTED) {
-      // keep track of start time/frame for later
-      AT_res_key_resp.tStart = t;  // (not accounting for frame time here)
-      AT_res_key_resp.frameNStart = frameN;  // exact frame index
-      
-      // keyboard checking is just starting
-      psychoJS.window.callOnFlip(function() { AT_res_key_resp.clock.reset(); });  // t=0 on next screen flip
-      psychoJS.window.callOnFlip(function() { AT_res_key_resp.start(); }); // start on screen flip
-      psychoJS.window.callOnFlip(function() { AT_res_key_resp.clearEvents(); });
-    }
-    
-    // if AT_res_key_resp is active this frame...
-    if (AT_res_key_resp.status === PsychoJS.Status.STARTED) {
-      let theseKeys = AT_res_key_resp.getKeys({
-        keyList: typeof ['left','right'] === 'string' ? [['left','right']] : ['left','right'], 
-        waitRelease: false
-      });
-      _AT_res_key_resp_allKeys = _AT_res_key_resp_allKeys.concat(theseKeys);
-      if (_AT_res_key_resp_allKeys.length > 0) {
-        AT_res_key_resp.keys = _AT_res_key_resp_allKeys[_AT_res_key_resp_allKeys.length - 1].name;  // just the last key pressed
-        AT_res_key_resp.rt = _AT_res_key_resp_allKeys[_AT_res_key_resp_allKeys.length - 1].rt;
-        AT_res_key_resp.duration = _AT_res_key_resp_allKeys[_AT_res_key_resp_allKeys.length - 1].duration;
-        // a response ends the routine
-        continueRoutine = false;
-      }
-    }
-    
-    
-    // *AT_trial_living_text_2* updates
-    if (t >= 0.0 && AT_trial_living_text_2.status === PsychoJS.Status.NOT_STARTED) {
-      // keep track of start time/frame for later
-      AT_trial_living_text_2.tStart = t;  // (not accounting for frame time here)
-      AT_trial_living_text_2.frameNStart = frameN;  // exact frame index
-      
-      AT_trial_living_text_2.setAutoDraw(true);
-    }
-    
-    
-    // if AT_trial_living_text_2 is active this frame...
-    if (AT_trial_living_text_2.status === PsychoJS.Status.STARTED) {
-    }
-    
-    
-    // *AT_trial_nonliving_text_2* updates
-    if (t >= 0.0 && AT_trial_nonliving_text_2.status === PsychoJS.Status.NOT_STARTED) {
-      // keep track of start time/frame for later
-      AT_trial_nonliving_text_2.tStart = t;  // (not accounting for frame time here)
-      AT_trial_nonliving_text_2.frameNStart = frameN;  // exact frame index
-      
-      AT_trial_nonliving_text_2.setAutoDraw(true);
-    }
-    
-    
-    // if AT_trial_nonliving_text_2 is active this frame...
-    if (AT_trial_nonliving_text_2.status === PsychoJS.Status.STARTED) {
+    frameRemains = 0.0 + 1.0 - psychoJS.window.monitorFramePeriod * 0.75;// most of one frame period left
+    if (text.status === PsychoJS.Status.STARTED && t >= frameRemains) {
+      // keep track of stop time/frame for later
+      text.tStop = t;  // not accounting for scr refresh
+      text.frameNStop = frameN;  // exact frame index
+      // update status
+      text.status = PsychoJS.Status.FINISHED;
+      text.setAutoDraw(false);
     }
     
     // check for quit (typically the Esc key)
@@ -1209,14 +1098,14 @@ function AT_residue_trialsRoutineEachFrame() {
     }
     
     continueRoutine = false;  // reverts to True if at least one component still running
-    for (const thisComponent of AT_residue_trialsComponents)
+    for (const thisComponent of osfComponents)
       if ('status' in thisComponent && thisComponent.status !== PsychoJS.Status.FINISHED) {
         continueRoutine = true;
         break;
       }
     
     // refresh the screen if continuing
-    if (continueRoutine) {
+    if (continueRoutine && routineTimer.getTime() > 0) {
       return Scheduler.Event.FLIP_REPEAT;
     } else {
       return Scheduler.Event.NEXT;
@@ -1225,30 +1114,21 @@ function AT_residue_trialsRoutineEachFrame() {
 }
 
 
-function AT_residue_trialsRoutineEnd(snapshot) {
+function osfRoutineEnd(snapshot) {
   return async function () {
-    //--- Ending Routine 'AT_residue_trials' ---
-    for (const thisComponent of AT_residue_trialsComponents) {
+    //--- Ending Routine 'osf' ---
+    for (const thisComponent of osfComponents) {
       if (typeof thisComponent.setAutoDraw === 'function') {
         thisComponent.setAutoDraw(false);
       }
     }
-    psychoJS.experiment.addData('AT_residue_trials.stopped', globalClock.getTime());
-    // update the trial handler
-    if (currentLoop instanceof MultiStairHandler) {
-      currentLoop.addResponse(AT_res_key_resp.corr, level);
+    psychoJS.experiment.addData('osf.stopped', globalClock.getTime());
+    if (routineForceEnded) {
+        routineTimer.reset();} else if (osfMaxDurationReached) {
+        osfClock.add(osfMaxDuration);
+    } else {
+        osfClock.add(1.000000);
     }
-    psychoJS.experiment.addData('AT_res_key_resp.keys', AT_res_key_resp.keys);
-    if (typeof AT_res_key_resp.keys !== 'undefined') {  // we had a response
-        psychoJS.experiment.addData('AT_res_key_resp.rt', AT_res_key_resp.rt);
-        psychoJS.experiment.addData('AT_res_key_resp.duration', AT_res_key_resp.duration);
-        routineTimer.reset();
-        }
-    
-    AT_res_key_resp.stop();
-    // the Routine "AT_residue_trials" was not non-slip safe, so reset the non-slip timer
-    routineTimer.reset();
-    
     // Routines running outside a loop should always advance the datafile row
     if (currentLoop === psychoJS.experiment) {
       psychoJS.experiment.nextEntry(snapshot);
